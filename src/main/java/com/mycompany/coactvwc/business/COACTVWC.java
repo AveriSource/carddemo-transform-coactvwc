@@ -4,22 +4,33 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mycompany.coactvwc.client.AcctdatClient;
+import com.mycompany.coactvwc.client.CustdatClient;
+import com.mycompany.coactvwc.client.CxacaixClient;
+
 import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller.
@@ -32,6 +43,15 @@ import tech.jhipster.web.util.HeaderUtil;
 public class COACTVWC {
 
     private final Logger log = LoggerFactory.getLogger(COACTVWC.class);
+
+    @Autowired
+    private AcctdatClient acctdatClient;
+
+    @Autowired
+    private CustdatClient custdatClient;
+
+    @Autowired
+    private CxacaixClient cxacaixClient;
 
     @PostMapping("COACTVWC/COACTVWC/method1")
     ResponseEntity<JSONObject> method1COACTVWC(@RequestBody JSONObject inputBody) throws Exception, URISyntaxException {
@@ -1162,31 +1182,29 @@ public class COACTVWC {
     //
     // //////////////////////////////////////////////
     // // Commented translated  :  Start
-    // //  /// <summary>/// Description for Method/// </summary>/// <param name="param">param 1</param>/// <returns></returns>public void ReadAcct(){
-    //
-    // //      wsNoInfoMessage = = true;
-    //
-    // //      setWsCardRidAcctId(getCdemoAcctId());
-    //
-    // //      GetcardxrefByacct(); /*To:GetcardxrefByacctExit*/
-    //
-    // //      //     IF DID-NOT-FIND-ACCT-IN-CARDXREF
-    //
-    // //      if (getFlgAcctfilterNotOk())    {
-    //
-    // //          /* TODO Untranslated GoTo found. " Go TO ReadAcctExit" Ln:1646 */    }
-    //
-    // //      GetacctdataByacct(); /*To:GetacctdataByacctExit*/
-    //
-    // //      if (getDidNotFindAcctInAcctdat())    {
-    //
-    // //          /* TODO Untranslated GoTo found. " Go TO ReadAcctExit" Ln:1653 */    }
-    //
-    // //      setWsCardRidCustId(getCdemoCustId());
-    //
-    // //      GetcustdataBycust(); /*To:GetcustdataBycustExit*/
-    //
-    // //      if (getDidNotFindCustInCustdat())    {    } }
+    // //  /// <summary>/// Description for Method/// </summary>/// <param name="param">param 1</param>/// <returns></returns>
+    @GetMapping("/readAcct/{acctId}")
+    public ResponseEntity<Map> readAcct(@PathVariable int acctId) {    
+    
+        // GetcardxrefByacct(); /*To:GetcardxrefByacctExit*/
+        List<Map> cxacaixes = cxacaixClient.getAllCxacaixes().getBody();
+
+        Map cxacaix = cxacaixes.stream().filter(x -> (int)x.get("xrefAcctId") == acctId).findFirst().orElse(null);
+        int custId = (int)cxacaix.get("xrefCustId");
+    
+        // GetacctdataByacct(); /*To:GetacctdataByacctExit*/
+        Map acctdat = acctdatClient.getAcctdat((long)acctId).getBody();
+
+       // GetcustdataBycust(); /*To:GetcustdataBycustExit*/
+        Map custdat = custdatClient.getCustdat((long)custId).getBody();
+
+        HashMap<String,Map> acctAndCust = new HashMap<>();
+        acctAndCust.put("acctdat", acctdat);
+        acctAndCust.put("custdat", custdat);
+
+        // return accdat + custdat
+        return ResponseUtil.wrapOrNotFound(Optional.of(acctAndCust));
+    }
     //
     // //////////////////////////////////////////////
     // // Commented translated  :  end
