@@ -1196,8 +1196,9 @@ public class COACTVWC {
         List<Map> acctdats = acctdatClient.getAllAcctdats(acctId, null).getBody();
         Map acctdat = acctdats.stream().findFirst().orElse(null);
 
-       // GetcustdataBycust(); /*To:GetcustdataBycustExit*/
-        Map custdat = custdatClient.getCustdat((long)custId).getBody();
+        // GetcustdataBycust(); /*To:GetcustdataBycustExit*/
+        List<Map> custdats = acctdatClient.getAllAcctdats(acctId, null).getBody();
+        Map custdat = acctdats.stream().findFirst().orElse(null);
 
         HashMap<String,Map> acctAndCust = new HashMap<>();
         acctAndCust.put("acctdat", acctdat);
