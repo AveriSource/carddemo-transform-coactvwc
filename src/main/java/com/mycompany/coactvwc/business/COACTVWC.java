@@ -1193,12 +1193,12 @@ public class COACTVWC {
         int custId = (int)cxacaix.get("xrefCustId");
     
         // GetacctdataByacct(); /*To:GetacctdataByacctExit*/
-        List<Map> acctdats = acctdatClient.getAllAcctdats(acctId, null).getBody();
+        List<Map> acctdats = acctdatClient.getAcctdatsByAcctId(acctId).getBody();
         Map acctdat = acctdats.stream().findFirst().orElse(null);
 
         // GetcustdataBycust(); /*To:GetcustdataBycustExit*/
-        List<Map> custdats = acctdatClient.getAllAcctdats(acctId, null).getBody();
-        Map custdat = acctdats.stream().findFirst().orElse(null);
+        List<Map> custdats = custdatClient.getCustdatsByCustId(custId).getBody();
+        Map custdat = custdats.stream().findFirst().orElse(null);
 
         HashMap<String,Map> acctAndCust = new HashMap<>();
         acctAndCust.put("acctdat", acctdat);
